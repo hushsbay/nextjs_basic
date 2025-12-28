@@ -1,12 +1,6 @@
 'use client';
 
-export default function GlobalError({
-    error,
-    reset,
-}: {
-    error: Error & { digest?: string };
-    reset: () => void;
-}) {
+export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
     return (
         <html>
             <body>
@@ -20,7 +14,6 @@ export default function GlobalError({
                                 <h1 className="text-3xl font-bold text-gray-800 mb-2">심각한 오류가 발생했습니다</h1>
                                 <p className="text-gray-600">애플리케이션에서 예기치 않은 오류가 발생했습니다.</p>
                             </div>
-
                             {process.env.NODE_ENV === 'development' && (
                                 <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                                     <p className="text-sm font-semibold text-red-800 mb-2">개발 모드 - 에러 정보:</p>
@@ -38,7 +31,6 @@ export default function GlobalError({
                                     </div>
                                 </div>
                             )}
-
                             <div className="flex gap-4">
                                 <button
                                     onClick={reset}
@@ -53,7 +45,6 @@ export default function GlobalError({
                                     홈으로 이동
                                 </button>
                             </div>
-
                             <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                                 <p className="text-sm text-yellow-800">
                                     <strong>⚠️ 서버 재시작이 필요할 수 있습니다</strong>

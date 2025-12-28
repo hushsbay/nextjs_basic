@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/client/api-client';
+import { useAuthStore } from '@/store/useAuthStore';
 
 interface User {
     userid: string;
@@ -18,7 +19,10 @@ interface TokenInfo {
 
 export default function DashboardPage() {
 
-    const [user, setUser] = useState<User | null>(null);
+    const user = useAuthStore((state) => state.user);
+    const setUser = useAuthStore((state) => state.setUser);
+    const clearUser = useAuthStore((state) => state.clearUser);
+    
     const [tokenInfo, setTokenInfo] = useState<TokenInfo>({
         accessTokenExpiry: null,
         refreshTokenExpiry: null,
@@ -38,12 +42,18 @@ export default function DashboardPage() {
         try {
             const data = await api.get('/api/auth/verify');
             if (data.success) {
-                setUser(data.user);
+                setUser({
+                    userid: data.user.userid,
+                    usernm: data.user.usernm,
+                    email: data.user.email,
+                });
             } else {
+                clearUser();
                 const errorMsg = encodeURIComponent(data.message || '인증되지 않았습니다.');
                 router.replace(`/login?error=${errorMsg}`);
             }
         } catch (error) {
+            clearUser();
             const errorMessage = error instanceof Error ? error.message : '인증되지 않았습니다.';
             setError(errorMessage);
             const errorMsg = encodeURIComponent(errorMessage);
@@ -56,6 +66,7 @@ export default function DashboardPage() {
     const handleLogout = async () => {
         try {
             await api.post('/api/auth/logout');
+            clearUser();
             router.replace('/login');
         } catch (error) {
             alert('로그아웃 처리 중 오류가 발생했습니다.');
@@ -255,7 +266,21 @@ export default function DashboardPage() {
                                     </button>
                                     <p className="text-xs text-yellow-700 mt-2">
                                         * 토큰 만료 테스트: AT/RT 검증 및 자동 갱신 로직 확인<br />
-                                        * 강제 무효화: DB에서 RT 제거 후 재로그인 필요
+                                        * 강제 무효화: DB에서 RT 제거 후 재로그인 필요</p>
+                            </div>
+
+                            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                <p className="text-purple-800 font-semibold mb-3">🔍 에러 핸들링 테스트</p>
+                                <div className="space-y-2">
+                                    <a
+                                        href="/error-test"
+                                        className="block w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-200 text-sm font-medium text-center"
+                                    >
+                                        error.tsx vs global-error.tsx 테스트 페이지
+                                    </a>
+                                    <p className="text-xs text-purple-700 mt-2">
+                                        * 일반 에러와 글로벌 에러의 차이점을 확인할 수 있습니다
+                                    </p>
                                     </p>
                                 </div>
                             </div>

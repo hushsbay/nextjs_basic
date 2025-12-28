@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/client/api-client';
+import { useAuthStore } from '@/store/useAuthStore';
 
 function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도로 분리
 
@@ -14,6 +15,11 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
 
     const router = useRouter();
     const searchParams = useSearchParams();
+    
+    const useridInputRef = useRef<HTMLInputElement>(null);
+    const passwordInputRef = useRef<HTMLInputElement>(null);
+    
+    const setUser = useAuthStore((state) => state.setUser);
 
     // 1) 아래 빈 배열시 컴포넌트가 처음 마운트(로드)될 때 한 번만 실행됨 : 저장된 사용자ID 불러오기
     useEffect(() => {
@@ -32,6 +38,15 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
         }
     }, [searchParams]);
 
+    // 3) 포커싱 로직: userid가 비어있으면 userid에, 아니면 password에 포커싱
+    useEffect(() => {
+        if (userid.trim() === '') {
+            useridInputRef.current?.focus();
+        } else {
+            passwordInputRef.current?.focus();
+        }
+    }, [userid]);
+
     const handleSubmit = async (e: React.FormEvent) => {        
         e.preventDefault();
         setError('');
@@ -39,6 +54,13 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
         try {
             const data = await api.post('/api/auth/login', { userid, password });
             if (data.success) {
+                // Zustand store에 사용자 정보 저장
+                setUser({
+                    userid: data.user.userid,
+                    usernm: data.user.usernm,
+                    email: data.user.email,
+                });
+                
                 if (rememberMe) { // 사용자ID 저장 옵션 처리
                     localStorage.setItem('savedUserid', userid);
                 } else {
@@ -83,6 +105,7 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
                                 사용자 ID
                             </label>
                             <input
+                                ref={useridInputRef}
                                 type="text"
                                 id="userid"
                                 value={userid}
@@ -98,7 +121,8 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
                             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                                 비밀번호
                             </label>
-                            <input
+                            <inpref={passwordInputRef}
+                                ut
                                 type="password"
                                 id="password"
                                 value={password}
