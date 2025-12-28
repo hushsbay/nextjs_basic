@@ -121,8 +121,8 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
                             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                                 비밀번호
                             </label>
-                            <inpref={passwordInputRef}
-                                ut
+                            <input
+                                ref={passwordInputRef}
                                 type="password"
                                 id="password"
                                 value={password}

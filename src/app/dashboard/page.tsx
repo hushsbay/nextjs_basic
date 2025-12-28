@@ -266,7 +266,9 @@ export default function DashboardPage() {
                                     </button>
                                     <p className="text-xs text-yellow-700 mt-2">
                                         * 토큰 만료 테스트: AT/RT 검증 및 자동 갱신 로직 확인<br />
-                                        * 강제 무효화: DB에서 RT 제거 후 재로그인 필요</p>
+                                        * 강제 무효화: DB에서 RT 제거 후 재로그인 필요
+                                    </p>
+                                </div>
                             </div>
 
                             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
@@ -280,7 +282,6 @@ export default function DashboardPage() {
                                     </a>
                                     <p className="text-xs text-purple-700 mt-2">
                                         * 일반 에러와 글로벌 에러의 차이점을 확인할 수 있습니다
-                                    </p>
                                     </p>
                                 </div>
                             </div>
