@@ -57,7 +57,7 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
                 } else {
                     localStorage.removeItem('savedUserid');
                 }
-                router.push('/dashboard'); // 대시보드로 이동
+                router.replace('/dashboard'); // 대시보드로 이동
             } else {
                 setError(data.message || '로그인에 실패했습니다.');
                 // if (data.code === 'INVALID_PASSWORD') { // 비밀번호 틀림에 대한 특별 처리
@@ -155,7 +155,7 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
                         </div>
                     </div>
 
-                    {/* 소셜 로그인 버튼들 */}
+                    {/* signIn => app>api>auth>[..nextauth]>route.ts => app>auth>callback>page.tsx => app>api>auth>social-callback */}
                     <div className="space-y-3">
                         <button
                             type="button"

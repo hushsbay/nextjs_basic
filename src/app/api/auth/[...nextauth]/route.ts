@@ -26,43 +26,33 @@ export const authOptions: NextAuthOptions = {
                     console.error('Social login failed: No email provided');
                     return false;
                 }
-
-                // 소셜 로그인 제공자 확인
-                const provider = account?.provider || 'unknown';
-                
-                // DB에 사용자 저장 또는 업데이트
-                const dbUser = await upsertSocialUser(
+                const provider = account?.provider || 'unknown'; // 소셜 로그인 제공자 확인
+                const dbUser = await upsertSocialUser( // DB에 사용자 저장 또는 업데이트
                     user.email,
                     user.name || user.email.split('@')[0],
                     provider
                 );
-
-                // 자체 JWT 토큰 발급
-                const tokenResult = await issueSocialLoginTokens(
+                const tokenResult = await issueSocialLoginTokens( // 자체 JWT 토큰 발급
                     dbUser.userid,
                     dbUser.usernm,
                     dbUser.email
                 );
-
                 if (!tokenResult.success) {
                     console.error('Token generation failed:', tokenResult.message);
                     return false;
                 }
-
                 // 토큰을 user 객체에 저장 (jwt 콜백에서 사용)
                 (user as any).customAccessToken = tokenResult.accessToken;
                 (user as any).customRefreshToken = tokenResult.refreshToken;
                 (user as any).userid = dbUser.userid;
                 (user as any).usernm = dbUser.usernm;
-
                 return true;
             } catch (error) {
                 console.error('SignIn callback error:', error);
                 return false;
             }
         },
-        async jwt({ token, user, account }) {
-            // 첫 로그인 시 user 정보를 token에 저장
+        async jwt({ token, user, account }) { // 첫 로그인 시 user 정보를 token에 저장
             if (user) {
                 token.userid = (user as any).userid;
                 token.usernm = (user as any).usernm;
@@ -72,8 +62,7 @@ export const authOptions: NextAuthOptions = {
             }
             return token;
         },
-        async session({ session, token }) {
-            // 세션에 사용자 정보 추가
+        async session({ session, token }) { // 세션에 사용자 정보 추가
             if (token) {
                 (session.user as any).userid = token.userid;
                 (session.user as any).usernm = token.usernm;
@@ -83,9 +72,7 @@ export const authOptions: NextAuthOptions = {
             }
             return session;
         },
-        async redirect({ url, baseUrl }) {
-            // 소셜 로그인 성공 후 리다이렉트
-            // 토큰을 쿼리 파라미터로 전달하거나 별도 페이지로 이동
+        async redirect({ url, baseUrl }) { // 소셜 로그인 성공 후 리다이렉트. 토큰을 쿼리 파라미터로 전달하거나 별도 페이지로 이동
             if (url.startsWith(baseUrl)) {
                 return `${baseUrl}/auth/callback`;
             }
@@ -94,7 +81,7 @@ export const authOptions: NextAuthOptions = {
     },
     session: {
         strategy: 'jwt',
-        maxAge: 30 * 24 * 60 * 60, // 30일
+        maxAge: 30 * 24 * 60 * 60, // 30일 => 자체 JWT를 사용하므로 maxAge 의미없으나 그대로 둠
     },
     secret: process.env.NEXTAUTH_SECRET,
 };
