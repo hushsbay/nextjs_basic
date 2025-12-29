@@ -6,8 +6,7 @@ export async function POST(request: NextRequest) {
         success: true,
         message: '로그아웃되었습니다.'
     });
-    // 쿠키 삭제 (같은 옵션으로 설정해야 제대로 삭제됨)
-    const cookieOptions = getCookieOptions();
+    const cookieOptions = getCookieOptions(); // 쿠키 삭제 (같은 옵션으로 설정해야 제대로 삭제됨)
     response.cookies.set('accessToken', '', { ...cookieOptions, maxAge: 0 });
     response.cookies.set('refreshToken', '', { ...cookieOptions, maxAge: 0 });
     return response;

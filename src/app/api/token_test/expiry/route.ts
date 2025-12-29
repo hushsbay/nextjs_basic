@@ -17,16 +17,14 @@ export async function GET(request: NextRequest) {
         let accessTokenExpiry: Date | null = null;
         let refreshTokenExpiry: Date | null = null;
         let wasRefreshed = false;
-        // AccessToken 검증
-        if (accessToken) {
+        if (accessToken) { // AccessToken 검증
             const payload = verifyAccessToken(accessToken);
             if (payload) {
                 userId = payload.userid;
                 accessTokenExpiry = getTokenExpiry(accessToken);
             }
         }
-        // AccessToken이 만료된 경우 RefreshToken으로 갱신
-        if (!userId && refreshToken) {
+        if (!userId && refreshToken) { // AccessToken이 만료된 경우 RefreshToken으로 갱신
             const payload = verifyRefreshToken(refreshToken);
             if (!payload) {
                 return NextResponse.json(
@@ -34,8 +32,7 @@ export async function GET(request: NextRequest) {
                     { status: 401 }
                 );
             }
-            // 토큰 갱신
-            const result = await refreshTokens(refreshToken);
+            const result = await refreshTokens(refreshToken); // 토큰 갱신
             if (!result.success) {
                 return NextResponse.json(
                     { success: false, message: result.message },
@@ -44,10 +41,8 @@ export async function GET(request: NextRequest) {
             }
             userId = payload.userid;
             wasRefreshed = true;
-            // 새로운 토큰의 만료일시
-            accessTokenExpiry = getTokenExpiry(result.accessToken!);
+            accessTokenExpiry = getTokenExpiry(result.accessToken!); // 새로운 토큰의 만료일시
             refreshTokenExpiry = getTokenExpiry(result.refreshToken!);
-            // 새로운 쿠키 설정 (세션 쿠키)
             const isProduction = process.env.NODE_ENV === 'production';
             const response = NextResponse.json({
                 success: true,
@@ -56,7 +51,7 @@ export async function GET(request: NextRequest) {
                 accessTokenExpiry,
                 refreshTokenExpiry,
                 message: '토큰이 갱신되었습니다.',
-            });
+            }); // 새로운 쿠키 설정 (세션 쿠키)
             response.cookies.set('accessToken', result.accessToken!, {
                 httpOnly: true,
                 secure: isProduction,
@@ -71,8 +66,7 @@ export async function GET(request: NextRequest) {
             });
             return response;
         }
-        // RefreshToken의 만료일시 (쿠키에서 직접 가져옴)
-        if (refreshToken) {
+        if (refreshToken) { // RefreshToken의 만료일시 (쿠키에서 직접 가져옴)
             refreshTokenExpiry = getTokenExpiry(refreshToken);
         }
         if (!userId) {
@@ -81,8 +75,7 @@ export async function GET(request: NextRequest) {
                 { status: 401 }
             );
         }
-        // DB에서 userrole 조회
-        const result = await query(
+        const result = await query( // DB에서 userrole 조회 - 테스트
             'SELECT userrole FROM com_user WHERE userid = $1',
             [userId]
         );

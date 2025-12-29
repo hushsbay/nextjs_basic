@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
         const body = await safeJsonParse(request, { userid: '', password: '' });
         const { userid, password } = body;
         if (!userid || !password) {
-            throw new ValidationError('사용자ID와 비밀번호를 입력해주세요.');
+            throw new ValidationError('사용자ID와 비밀번호를 입력해 주세요.');
         }
         const result = await authenticateUser(userid, password);
         if (!result.success) {

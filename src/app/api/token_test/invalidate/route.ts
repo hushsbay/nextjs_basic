@@ -13,8 +13,7 @@ export async function POST(request: NextRequest) {
                 { success: false, message: '인증되지 않았습니다.' },
                 { status: 401 }
             );
-        }
-        // 현재 사용자 확인
+        } // 현재 사용자 확인
         let userId: string | null = null;
         if (accessToken) {
             const payload = verifyAccessToken(accessToken);

@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 
 function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도로 분리
 
+    const setUser = useAuthStore((state) => state.setUser);
     const [userid, setUserid] = useState('');
     const [password, setPassword] = useState(''); //passport.js, next-auth 등에서 일반적으로 password라는 필드명 사용 (가급적 맞춰 사용하기로 함)
     const [rememberMe, setRememberMe] = useState(false);
@@ -18,11 +19,8 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
     
     const useridInputRef = useRef<HTMLInputElement>(null);
     const passwordInputRef = useRef<HTMLInputElement>(null);
-    
-    const setUser = useAuthStore((state) => state.setUser);
 
-    // 1) 아래 빈 배열시 컴포넌트가 처음 마운트(로드)될 때 한 번만 실행됨 : 저장된 사용자ID 불러오기
-    useEffect(() => {
+    useEffect(() => { // 1) 아래 빈 배열시 컴포넌트가 처음 마운트(로드)될 때 한 번만 실행됨 : 저장된 사용자ID 불러오기
         const savedUserid = localStorage.getItem('savedUserid');
         if (savedUserid) {
             setUserid(savedUserid);
@@ -30,16 +28,14 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
         }
     }, []);
 
-    // 2) searchParams가 변할 때마다 URL에서 에러 메시지 가져오기
-    useEffect(() => {
+    useEffect(() => { // 2) searchParams가 변할 때마다 URL에서 에러 메시지 가져오기
         const errorParam = searchParams.get('error');
         if (errorParam) {
             setError(decodeURIComponent(errorParam));
         }
     }, [searchParams]);
 
-    // 3) 포커싱 로직: userid가 비어있으면 userid에, 아니면 password에 포커싱
-    useEffect(() => {
+    useEffect(() => { // 3) 포커싱 로직: userid가 비어있으면 userid에, 아니면 password에 포커싱
         if (userid.trim() === '') {
             useridInputRef.current?.focus();
         } else {
@@ -54,13 +50,7 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
         try {
             const data = await api.post('/api/auth/login', { userid, password });
             if (data.success) {
-                // Zustand store에 사용자 정보 저장
-                setUser({
-                    userid: data.user.userid,
-                    usernm: data.user.usernm,
-                    email: data.user.email,
-                });
-                
+                setUser({ userid: data.user.userid, usernm: data.user.usernm, email: data.user.email }); // Zustand store에 사용자 정보 저장
                 if (rememberMe) { // 사용자ID 저장 옵션 처리
                     localStorage.setItem('savedUserid', userid);
                 } else {
@@ -69,10 +59,8 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
                 router.push('/dashboard'); // 대시보드로 이동
             } else {
                 setError(data.message || '로그인에 실패했습니다.');
-                // if (data.code === 'INVALID_PASSWORD') {
-                //     // 비밀번호 틀림에 대한 특별 처리
-                // } else if (data.code === 'USER_NOT_FOUND') {
-                //     // 사용자 없음에 대한 특별 처리
+                // if (data.code === 'INVALID_PASSWORD') { // 비밀번호 틀림에 대한 특별 처리
+                // } else if (data.code === 'USER_NOT_FOUND') { // 사용자 없음에 대한 특별 처리
                 // }
                 console.error('Login error details:', data.error);
             }
@@ -158,8 +146,8 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
                 </div>
 
                 {/* <p className="text-center text-gray-600 text-sm mt-6">
-          테스트 환경입니다. DB 연결 후 사용 가능합니다.
-        </p> */}
+                    테스트 환경입니다. DB 연결 후 사용 가능합니다.
+                </p> */}
             </div>
         </div>
     );

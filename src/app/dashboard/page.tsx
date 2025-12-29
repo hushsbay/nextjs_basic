@@ -5,12 +5,6 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/client/api-client';
 import { useAuthStore } from '@/store/useAuthStore';
 
-interface User {
-    userid: string;
-    usernm: string;
-    email: string;
-}
-
 interface TokenInfo {
     accessTokenExpiry: string | null;
     refreshTokenExpiry: string | null;
@@ -21,19 +15,18 @@ export default function DashboardPage() {
 
     const user = useAuthStore((state) => state.user);
     const setUser = useAuthStore((state) => state.setUser);
-    const clearUser = useAuthStore((state) => state.clearUser);
-    
-    const [tokenInfo, setTokenInfo] = useState<TokenInfo>({
-        accessTokenExpiry: null,
-        refreshTokenExpiry: null,
-        userrole: null,
-    });
+    const clearUser = useAuthStore((state) => state.clearUser);    
+    const [tokenInfo, setTokenInfo] = useState<TokenInfo>({ accessTokenExpiry: null, refreshTokenExpiry: null, userrole: null });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [testMessage, setTestMessage] = useState('');
 
     const router = useRouter();
 
+    //////////////////////////////////////////////////////////////
+    // 사실, 아래 verifyAuth()와 handleTestExpiry()는 여기서 구현할 것이 아니고 서버에서 요청 들어올 때마다 체크해 처리해야 함
+    // 현재 모듈은 MVP 모델이므로 여기서 테스트한 것임
+    
     useEffect(() => {
         verifyAuth();
     }, []);
@@ -42,11 +35,7 @@ export default function DashboardPage() {
         try {
             const data = await api.get('/api/auth/verify');
             if (data.success) {
-                setUser({
-                    userid: data.user.userid,
-                    usernm: data.user.usernm,
-                    email: data.user.email,
-                });
+                setUser({ userid: data.user.userid, usernm: data.user.usernm, email: data.user.email }); // Zustand store에 사용자 정보 저장
             } else {
                 clearUser();
                 const errorMsg = encodeURIComponent(data.message || '인증되지 않았습니다.');
@@ -60,16 +49,6 @@ export default function DashboardPage() {
             router.replace(`/login?error=${errorMsg}`);
         } finally {
             setIsLoading(false);
-        }
-    };
-
-    const handleLogout = async () => {
-        try {
-            await api.post('/api/auth/logout');
-            clearUser();
-            router.replace('/login');
-        } catch (error) {
-            alert('로그아웃 처리 중 오류가 발생했습니다.');
         }
     };
 
@@ -101,8 +80,19 @@ export default function DashboardPage() {
             setTestMessage('✗ 테스트 중 오류가 발생했습니다.');
         }
     };
+    //////////////////////////////////////////////////////////////
 
-    const handleInvalidateToken = async () => {
+    const handleLogout = async () => {
+        try {
+            await api.post('/api/auth/logout');
+            clearUser();
+            router.replace('/login');
+        } catch (error) {
+            alert('로그아웃 처리 중 오류가 발생했습니다.');
+        }
+    };
+
+    const handleInvalidateToken = async () => { //향후 admin 기능으로 빼야 함
         if (!confirm('토큰을 강제로 무효화하시겠습니까? 다시 로그인해야 합니다.')) {
             return;
         }
