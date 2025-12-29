@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import KakaoProvider from 'next-auth/providers/kakao';
 import type { NextAuthOptions } from 'next-auth';
 import { upsertSocialUser, issueSocialLoginTokens } from '@/lib/server/auth';
 
@@ -9,11 +10,10 @@ export const authOptions: NextAuthOptions = {
             clientId: process.env.GOOGLE_CLIENT_ID || '',
             clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
         }),
-        // 카카오는 나중에 추가 예정
-        // KakaoProvider({
-        //     clientId: process.env.KAKAO_CLIENT_ID || '',
-        //     clientSecret: process.env.KAKAO_CLIENT_SECRET || '',
-        // }),
+        KakaoProvider({
+            clientId: process.env.KAKAO_CLIENT_ID || '',
+            clientSecret: process.env.KAKAO_CLIENT_SECRET || '',
+        }),
     ],
     pages: {
         signIn: '/login', // 커스텀 로그인 페이지

@@ -171,16 +171,17 @@ function LoginForm() { // useSearchParams를 사용하는 컴포넌트를 별도
                             <span>구글로 로그인</span>
                         </button>
 
+                        {/* 현재 AcessDenied 발생 => 원인은 카카오 이메일 관련 동의 처리 안되서 그런 듯하나 원인 파악 안되고 있어 일단 막음)
                         <button
                             type="button"
-                            onClick={() => alert('카카오 로그인은 준비 중입니다.')}
+                            onClick={() => signIn('kakao', { callbackUrl: '/auth/callback' })}
                             className="w-full flex items-center justify-center gap-3 bg-yellow-400 text-gray-900 py-3 rounded-lg font-medium hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-300 transition duration-200"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
                                 <path fill="currentColor" d="M12 3c5.799 0 10.5 3.664 10.5 8.185 0 4.52-4.701 8.184-10.5 8.184a13.5 13.5 0 0 1-1.727-.11l-4.408 2.883c-.501.265-.678.236-.472-.413l.892-3.678c-2.88-1.46-4.785-3.99-4.785-6.866C1.5 6.665 6.201 3 12 3z"/>
                             </svg>
-                            <span>카카오로 로그인 (준비중)</span>
-                        </button>
+                            <span>카카오로 로그인</span>
+                        </button> */}
                     </div>
                 </div>
 
