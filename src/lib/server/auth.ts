@@ -116,6 +116,89 @@ export async function logoutUser(userid: string): Promise<void> {
 }
 
 /**
+ * 소셜 로그인 사용자 생성 또는 업데이트
+ * @param email - 이메일 (소셜 로그인의 고유 식별자로 사용)
+ * @param usernm - 사용자 이름
+ * @param provider - 소셜 로그인 제공자 ('google', 'kakao' 등)
+ * @returns 사용자 정보
+ */
+export async function upsertSocialUser(email: string, usernm: string, provider: string): Promise<UserRow> {
+    try {
+        // 이메일로 기존 사용자 조회
+        const existingUser = await query(
+            'SELECT userid, usernm, email, provider, userrole FROM com_user WHERE email = $1',
+            [email]
+        );
+
+        if (existingUser.rows.length > 0) {
+            // 기존 사용자 업데이트 (마지막 로그인 시간)
+            await query(
+                'UPDATE com_user SET usernm = $1, lastlogin_at = NOW(), updated_at = NOW() WHERE email = $2',
+                [usernm, email]
+            );
+            return existingUser.rows[0];
+        } else {
+            // 새 사용자 생성 (소셜 로그인은 비밀번호 없음)
+            // userid는 email의 @ 앞부분 + 랜덤 숫자로 생성
+            const userid = email.split('@')[0] + '_' + Math.random().toString(36).substring(2, 8);
+            
+            const result = await query(
+                `INSERT INTO com_user (userid, usernm, email, provider, pwd, lastlogin_at, created_at) 
+                 VALUES ($1, $2, $3, $4, NULL, NOW(), NOW()) 
+                 RETURNING userid, usernm, email, provider, userrole`,
+                [userid, usernm, email, provider]
+            );
+            return result.rows[0];
+        }
+    } catch (error) {
+        console.error('Social user upsert error:', error);
+        throw error;
+    }
+}
+
+/**
+ * 소셜 로그인 사용자에게 토큰 발급 및 저장
+ * @param userid - 사용자 ID
+ * @param usernm - 사용자 이름
+ * @param email - 이메일
+ * @returns 인증 결과 (토큰 포함)
+ */
+export async function issueSocialLoginTokens(userid: string, usernm: string, email: string): Promise<AuthResult> {
+    try {
+        const tokenPayload: TokenPayload = {
+            userid,
+            usernm,
+            email,
+        };
+        
+        const accessToken = generateAccessToken(tokenPayload);
+        const refreshToken = generateRefreshToken(tokenPayload);
+        const refreshTokenExpiry = getRefreshTokenExpiry();
+
+        // RefreshToken을 DB에 저장
+        await query(
+            'UPDATE com_user SET refresh_token = $1, refresh_token_expiry = $2 WHERE userid = $3',
+            [refreshToken, refreshTokenExpiry, userid]
+        );
+
+        return {
+            success: true,
+            user: {
+                userid,
+                usernm,
+                email,
+            },
+            accessToken,
+            refreshToken,
+        };
+    } catch (error) {
+        console.error('Social login token issue error:', error);
+        const errorMessage = error instanceof Error ? error.message : '토큰 발급 중 오류가 발생했습니다.';
+        return { success: false, message: errorMessage };
+    }
+}
+
+/**
  * 비밀번호 해싱
  * @param password - 평문 비밀번호
  * @returns 해싱된 비밀번호
