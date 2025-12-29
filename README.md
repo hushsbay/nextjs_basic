@@ -395,39 +395,6 @@ Get-Content logs/app-2025-12-29.log -Wait -Tail 50
 - **SameSite**: CSRF 공격 방어를 위한 쿠키 속성
 - **Zustand**: React 상태 관리 라이브러리 (Redux 대안)
 
-## 🛠️ 트러블슈팅
-
-### PowerShell에서 npm 명령어 오류
-
-**문제**: `이 시스템에서 스크립트를 실행할 수 없으므로...`
-
-**해결**:
-```bash
-# 방법 1: CMD 사용 (권장)
-cmd /c npm run dev
-
-# 방법 2: 실행 정책 변경 (관리자 권한)
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
-### 데이터베이스 연결 오류
-
-**문제**: `Connection refused` 또는 `ECONNREFUSED`
-
-**해결**:
-1. PostgreSQL 서비스가 실행 중인지 확인
-2. `.env.local`의 DB_URL 확인
-3. 데이터베이스와 사용자가 생성되었는지 확인
-
-### 토큰 갱신 실패
-
-**문제**: RefreshToken으로 갱신이 안됨
-
-**해결**:
-1. DB에 RefreshToken이 저장되었는지 확인
-2. RefreshToken 만료 시간 확인
-3. 브라우저 쿠키 확인 (httpOnly 설정)
-
 ## 📝 라이센스
 
 MIT License
