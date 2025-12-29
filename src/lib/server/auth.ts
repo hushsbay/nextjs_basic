@@ -22,43 +22,32 @@ interface UserRow {
  * @param password - 비밀번호
  * @returns 인증 결과 (성공 시 토큰 포함)
  */
-export async function authenticateUser(userid: string, password: string): Promise<AuthResult> {
+export async function authenticateUser(userid: string, password: string): Promise<AuthResult> { 
     try {
-        // 사용자 조회
-        const result = await query(
+        const result = await query( // 사용자 조회
             'SELECT userid, usernm, pwd, email, userrole FROM com_user WHERE userid = $1',
             [userid]
         );
-
         if (result.rows.length === 0) {
             return { success: false, message: '사용자를 찾을 수 없습니다.' };
         }
-
         const user: UserRow = result.rows[0];
-
-        // 비밀번호 검증
-        const isPasswordValid = await bcrypt.compare(password, user.pwd);
+        const isPasswordValid = await bcrypt.compare(password, user.pwd); // 비밀번호 검증
         if (!isPasswordValid) {
             return { success: false, message: '비밀번호가 일치하지 않습니다.' };
         }
-
-        // JWT 생성
-        const tokenPayload: TokenPayload = {
+        const tokenPayload: TokenPayload = { // JWT 생성
             userid: user.userid,
             usernm: user.usernm,
             email: user.email,
         };
-
         const accessToken = generateAccessToken(tokenPayload);
         const refreshToken = generateRefreshToken(tokenPayload);
         const refreshTokenExpiry = getRefreshTokenExpiry();
-
-        // RefreshToken을 DB에 저장
-        await query(
+        await query( // RefreshToken을 DB에 저장
             'UPDATE com_user SET refresh_token = $1, refresh_token_expiry = $2, lastlogin_at = NOW() WHERE userid = $3',
             [refreshToken, refreshTokenExpiry, user.userid]
         );
-
         return {
             success: true,
             user: {
@@ -78,46 +67,35 @@ export async function authenticateUser(userid: string, password: string): Promis
 }
 
 /**
- * Refresh Token으로 토큰 갱신
+ * Refresh Token으로 토큰 갱신 : accessToken 갱신시 refreshToken도 같이 갱신
  * @param refreshToken - Refresh Token
  * @returns 갱신 결과 (성공 시 새 토큰 포함)
  */
 export async function refreshTokens(refreshToken: string): Promise<TokenRefreshResult> {
     try {
-        // DB에서 refreshToken 확인
-        const result = await query(
+        const result = await query( // DB에서 refreshToken 확인
             'SELECT userid, usernm, email, refresh_token, refresh_token_expiry FROM com_user WHERE refresh_token = $1',
             [refreshToken]
         );
-
         if (result.rows.length === 0) {
             return { success: false, message: 'Invalid refresh token' };
         }
-
         const user: UserRow = result.rows[0];
-
-        // 만료 확인
-        if (new Date(user.refresh_token_expiry!) < new Date()) {
+        if (new Date(user.refresh_token_expiry!) < new Date()) { // 만료 확인
             return { success: false, message: 'Refresh token expired' };
         }
-
-        // 새로운 토큰 생성
-        const tokenPayload: TokenPayload = {
+        const tokenPayload: TokenPayload = { // 새로운 토큰 생성
             userid: user.userid,
             usernm: user.usernm,
             email: user.email,
         };
-
         const newAccessToken = generateAccessToken(tokenPayload);
         const newRefreshToken = generateRefreshToken(tokenPayload);
         const newRefreshTokenExpiry = getRefreshTokenExpiry();
-
-        // 새 RefreshToken을 DB에 저장
-        await query(
+        await query( // 새 RefreshToken을 DB에 저장
             'UPDATE com_user SET refresh_token = $1, refresh_token_expiry = $2 WHERE userid = $3',
             [newRefreshToken, newRefreshTokenExpiry, user.userid]
         );
-
         return {
             success: true,
             accessToken: newAccessToken,
@@ -130,10 +108,6 @@ export async function refreshTokens(refreshToken: string): Promise<TokenRefreshR
     }
 }
 
-/**
- * 로그아웃 (DB에서 Refresh Token 제거)
- * @param userid - 사용자 ID
- */
 export async function logoutUser(userid: string): Promise<void> {
     await query(
         'UPDATE com_user SET refresh_token = NULL, refresh_token_expiry = NULL WHERE userid = $1',
@@ -141,22 +115,13 @@ export async function logoutUser(userid: string): Promise<void> {
     );
 }
 
-/**
- * 비밀번호 해싱
- * @param password - 평문 비밀번호
- * @returns 해싱된 비밀번호
- */
+// 비밀번호 해싱 : password - 평문 비밀번호 returns 해싱된 비밀번호
 export async function hashPassword(password: string): Promise<string> {
     const saltRounds = 10;
     return bcrypt.hash(password, saltRounds);
 }
 
-/**
- * 비밀번호 검증
- * @param password - 평문 비밀번호
- * @param hashedPassword - 해싱된 비밀번호
- * @returns 일치 여부
- */
+// 비밀번호 검증 : password - 평문 비밀번호 / hashedPassword - 해싱된 비밀번호 returns 일치 여부
 export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
 }

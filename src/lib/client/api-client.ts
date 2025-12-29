@@ -18,19 +18,16 @@ interface ApiResponse<T = any> {
 // 기본 fetch 래퍼 : 1) Content-Type: application/json 자동 설정 2) body 자동 JSON.stringify 3) response 자동 json() 파싱
 async function apiFetch<T = any>(url: string, options: ApiOptions = {}): Promise<ApiResponse<T>> {
     const { body, params, headers = {}, ...restOptions } = options;
-    // URL에 쿼리 파라미터 추가 (GET 요청 등에 사용)
     let finalUrl = url;
-    if (params) {
+    if (params) { // URL에 쿼리 파라미터 추가 (GET 요청 등에 사용)
         const queryString = new URLSearchParams(params).toString();
         finalUrl = `${url}${url.includes('?') ? '&' : '?'}${queryString}`;
     }
-    // 기본 헤더 설정 (Content-Type은 body가 있을 때만)
-    const finalHeaders: Record<string, string> = {
+    const finalHeaders: Record<string, string> = { // 기본 헤더 설정 (Content-Type은 body가 있을 때만)
         ...(headers as Record<string, string>),
     };
-    // body가 있으면 JSON으로 자동 변환하고 Content-Type 설정
     let finalBody: string | FormData | undefined;
-    if (body) {
+    if (body) { // body가 있으면 JSON으로 자동 변환하고 Content-Type 설정
         if (body instanceof FormData) { // FormData는 그대로 전달 (Content-Type은 브라우저가 자동 설정)
             finalBody = body;
         } else { // 객체는 JSON으로 변환
@@ -45,10 +42,8 @@ async function apiFetch<T = any>(url: string, options: ApiOptions = {}): Promise
             body: finalBody,
             credentials: options.credentials || 'same-origin',
         });
-        // JSON 응답 파싱
-        const data = await response.json();
-        // HTTP 에러 처리 (4xx, 5xx)
-        if (!response.ok && !data.success) {
+        const data = await response.json(); // JSON 응답 파싱
+        if (!response.ok && !data.success) { // HTTP 에러 처리 (4xx, 5xx)
             return {
                 success: false,
                 message: data.message || `HTTP Error: ${response.status}`,
@@ -68,9 +63,7 @@ async function apiFetch<T = any>(url: string, options: ApiOptions = {}): Promise
     }
 }
 
-// Omit<ApiOptions, 'method' | 'body'>는 사용자가 실수로 method나 body를 옵션으로 전달하는 것을 방지.
-// 이미 함수 안에서 파라미터로 전달하기 때문임
-
+// Omit<ApiOptions, 'method' | 'body'>는 사용자가 실수로 method나 body를 옵션으로 전달하는 것을 방지. 이미 함수 안에서 파라미터로 전달하기 때문임
 export async function apiGet<T = any>(url: string, params?: Record<string, any>, options?: Omit<ApiOptions, 'method' | 'body' | 'params'>): Promise<ApiResponse<T>> {
     return apiFetch<T>(url, {
         ...options,

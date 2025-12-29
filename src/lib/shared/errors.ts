@@ -32,25 +32,18 @@ export class DatabaseError extends AppError {
     }
 }
 
-export function normalizeErrorMessage(error: unknown): string { // 에러 메시지 정규화
-    if (error instanceof AppError) {
-        return error.message;
-    }
-    if (error instanceof Error) {
-        return error.message;
-    }
-    if (typeof error === 'string') {
-        return error;
-    }
-    return '알 수 없는 오류가 발생했습니다.';
-}
+// export function normalizeErrorMessage(error: unknown): string { // 에러 메시지 정규화
+//     if (error instanceof AppError) return error.message;
+//     if (error instanceof Error) return error.message;
+//     if (typeof error === 'string') return error;
+//     return '알 수 없는 오류가 발생했습니다.';
+// }
 
-// 개발 환경에서만 상세 에러 정보 반환 (X)
-export function getErrorDetails(error: unknown) {
-    //const isDevelopment = process.env.NODE_ENV === 'development';
-    //if (!isDevelopment) return undefined;
-    if (error instanceof Error) {
-        return { name: error.name, message: error.message, stack: error.stack };
-    }
-    return String(error);
-}
+// export function getErrorDetails(error: unknown) {
+//     //const isDevelopment = process.env.NODE_ENV === 'development';
+//     //if (!isDevelopment) return undefined;
+//     if (error instanceof Error) {
+//         return { name: error.name, message: error.message, stack: error.stack };
+//     }
+//     return String(error);
+// }

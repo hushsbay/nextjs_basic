@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateUser } from '@/lib/server/auth';
-import { handleApiError, safeJsonParse, getCookieOptions } from '@/lib/server/api-utils';
+import { responseCatchedError, safeJsonParse, getCookieOptions } from '@/lib/server/api-utils';
 import { ValidationError } from '@/lib/shared/errors';
 
 export async function POST(request: NextRequest) {
@@ -22,6 +22,6 @@ export async function POST(request: NextRequest) {
         response.cookies.set('refreshToken', result.refreshToken!, cookieOptions);
         return response;
     } catch (error) {
-        return handleApiError(error, 'Login');
+        return responseCatchedError(error, '로그인 오류입니다.', request, {}, 'auth>login');
     }
 }

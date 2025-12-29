@@ -14,8 +14,7 @@ interface AuthState {
     clearUser: () => void;
 }
 
-// zustand store with localStorage persistence
-export const useAuthStore = create<AuthState>()(
+export const useAuthStore = create<AuthState>()( // zustand store with localStorage persistence
     persist(
         (set) => ({
             user: null,
@@ -24,7 +23,7 @@ export const useAuthStore = create<AuthState>()(
             clearUser: () => set({ user: null, isAuthenticated: false }),
         }),
         {
-            name: 'auth-storage', // localStorage key
+            name: 'auth-storage-20251229', // localStorage key
             storage: createJSONStorage(() => localStorage),
         }
     )

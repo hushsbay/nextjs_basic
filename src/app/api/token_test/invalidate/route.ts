@@ -54,15 +54,9 @@ export async function POST(request: NextRequest) {
         response.cookies.delete('refreshToken');
         return response;
     } catch (error) {
-        return responseCatchedError(
-            error, 
-            '토큰 무효화 중 오류가 발생했습니다.', 
-            request,
-            {
-                hasAccessToken: !!request.cookies.get('accessToken')?.value,
-                hasRefreshToken: !!request.cookies.get('refreshToken')?.value,
-            },
-            'token_test>invalidate>POST111'  // 함수명 추출 실패 시 사용할 title
-        );
+        return responseCatchedError(error, '토큰 무효화 중 오류가 발생했습니다.', request, {
+            hasAccessToken: !!request.cookies.get('accessToken')?.value,
+            hasRefreshToken: !!request.cookies.get('refreshToken')?.value,
+        }, 'token_test>invalidate');
     }
 }

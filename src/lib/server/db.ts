@@ -1,7 +1,6 @@
 import { Pool } from 'pg';
 
-// Next.js도 @Transactional 같은 annotation을 지원하나요? 아니요, Next.js/Node.js는 지원하지 않습니다
-// TypeScript decorator는 있지만 Spring의 @Transactional과 다릅니다. 대신 tx 같은 함수 래퍼 패턴을 사용합니다
+// Next.js는 @Transactional 같은 annotation을 지원하지 않음 (TypeScript decorator는 있지만 Spring의 @Transactional과 다름)
 
 let pool: Pool | null = null;
 
