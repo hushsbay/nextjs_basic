@@ -36,8 +36,7 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         return NextResponse.json({
             success: false,
-            message: error instanceof Error ? error.message : '인증 실패',
-            shouldRedirect: true
+            message: error instanceof Error ? error.message : '인증 실패'
         }, { status: 401 });
     }
 }

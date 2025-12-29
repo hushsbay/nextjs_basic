@@ -2,3 +2,4 @@
 export * from './auth';
 export * from './db';
 export * from './api-utils';
+export * from './logger';
