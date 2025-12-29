@@ -1,6 +1,6 @@
-# Next.js JWT Authentication Template
+# Next.js Template
 
-Next.js 15+ 기반의 완전한 JWT 인증 템플릿 프로젝트입니다. httpOnly 쿠키를 사용한 보안 강화, Zustand 상태 관리, 자동 토큰 갱신 등 프로덕션급 기능을 포함합니다.
+Next.js 15+ 기반의 완전한 JWT 인증 등 템플릿 프로젝트입니다. httpOnly 쿠키를 사용한 보안 강화, Zustand 상태 관리, 자동 토큰 갱신 등 프로덕션급 기능을 포함합니다.
 
 ## 🚀 주요 기능
 
