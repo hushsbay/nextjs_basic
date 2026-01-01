@@ -77,7 +77,7 @@ export function getClientIP(request?: NextRequest): string {
     if (realIp) {
         return realIp;
     }    
-    return request.ip || 'unknown';
+    return 'unknown';
 }
 
 // 함수 호출 스택에서 파일 경로와 함수명 추출 : Next.js 서버 전용 (Node.js Error.stack 사용) returns "app>api>token_test>invalidate>route.ts>POST" 형식

@@ -100,10 +100,10 @@ export default function DashboardPage() {
         try {
             const data = await api.post('/api/token_test/invalidate');
             if (data.success) {
-                const errorMsg = encodeURIComponent(data.message);
+                const errorMsg = encodeURIComponent(data.message || '토큰이 무효화되었습니다');
                 router.replace(`/login?error=${errorMsg}`);
             } else {
-                setTestMessage(`✗ ${data.message}`);
+                setTestMessage(`✗ ${data.message || '알 수 없는 오류'}`);
             }
         } catch (error) {
             setTestMessage('✗ 무효화 중 오류가 발생했습니다.');
